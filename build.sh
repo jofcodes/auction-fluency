@@ -75,11 +75,27 @@ fi
 if [ -z "$JAVA_HOME_CANDIDATE" ] && [ -n "$JAVA_HOME" ]; then
     JAVA_HOME_CANDIDATE="$JAVA_HOME"
 fi
+# Fallback to manual tarball install location used on this machine to bypass brew permissions issue
+if [ -z "$JAVA_HOME_CANDIDATE" ] && [ -d "$HOME/jdk" ]; then
+    # pick newest jdk-17* or jdk-11* directory under ~/jdk
+    JDK_DIR=$(ls -1d "$HOME"/jdk/jdk-17* "$HOME"/jdk/jdk-11* 2>/dev/null | sort -V | tail -n1)
+    if [ -n "$JDK_DIR" ] && [ -d "$JDK_DIR/Contents/Home" ]; then
+        JAVA_HOME_CANDIDATE="$JDK_DIR/Contents/Home"
+    elif [ -n "$JDK_DIR" ] && [ -x "$JDK_DIR/bin/javac" ]; then
+        JAVA_HOME_CANDIDATE="$JDK_DIR"
+    fi
+fi
 if [ -z "$JAVA_HOME_CANDIDATE" ]; then
     echo "ERROR: JDK not found."
-    echo "  Install OpenJDK 17: brew install openjdk@17"
-    echo "  Then: export JAVA_HOME=\$(/usr/libexec/java_home -v 17)"
-    echo "        export PATH=\"\$JAVA_HOME/bin:\$PATH\""
+    echo "  Option A — brew (may need sudo chown fix first):"
+    echo "    brew install openjdk@17"
+    echo "    export JAVA_HOME=\$(/usr/libexec/java_home -v 17)"
+    echo "  Option B — manual tarball (works without brew permissions, already used successfully on this machine):"
+    echo "    mkdir -p ~/jdk && cd ~/jdk"
+    echo "    curl -L -o openjdk17.tar.gz https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.11%2B9/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.11_9.tar.gz"
+    echo "    tar -xzf openjdk17.tar.gz"
+    echo "    export JAVA_HOME=\$HOME/jdk/jdk-17.0.11+9/Contents/Home"
+    echo "  Then: export PATH=\"\$JAVA_HOME/bin:\$PATH\""
     exit 1
 fi
 export JAVA_HOME="$JAVA_HOME_CANDIDATE"

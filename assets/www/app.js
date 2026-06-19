@@ -1,8 +1,10 @@
 // Auction Fluency – Portal app JS
 // Single page app with localStorage progress, swipe nav, quiz engine
+// Version 1.1 – improved error handling, offline detection, robust JSON loading
 
 const DAYS = 5;
 const STORAGE_KEY = 'auctionFluencyProgress';
+const APP_VERSION = '1.1.0';
 let currentDay = 1;
 let progress = loadProgress();
 let touchStartX = 0;
@@ -53,14 +55,30 @@ function renderHome(){
 
 async function loadDay(day){
   document.getElementById('day-label').textContent = 'Day '+day;
+  const moduleContent = document.getElementById('module-content');
+  // show loading state for slow Portal WebView
+  moduleContent.innerHTML = '<p style="text-align:center;padding:2rem;color:#606770;">Loading Day '+day+'...</p>';
+  // restore full structure after brief delay to allow render
+  await new Promise(r=>setTimeout(r,50));
+  moduleContent.innerHTML = `
+    <section id="reading-section"><h2>Reading</h2><div id="reading-links"></div></section>
+    <section id="concepts-section"><h2>Key Concepts</h2><ul id="concepts-list"></ul></section>
+    <section id="quiz-section"><h2>Quiz</h2><div id="quiz-container"></div><div id="quiz-result" class="hidden"></div></section>`;
   try {
-    const resp = await fetch('data/day'+day+'.json');
+    const resp = await fetch('data/day'+day+'.json', {cache:'no-cache'});
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
     const data = await resp.json();
+    // validate required fields to catch malformed JSON early
+    if(!data.title || !Array.isArray(data.concepts) || !Array.isArray(data.quiz)) {
+      throw new Error('Invalid JSON structure missing title/concepts/quiz');
+    }
     renderReading(data.readingLinks||[]);
     renderConcepts(data.concepts||[]);
     renderQuiz(data.quiz||[], day);
   } catch(e){
-    document.getElementById('module-content').innerHTML = '<p>Error loading day '+day+'. Check assets/www/data/day'+day+'.json</p>';
+    console.error('Failed to load day',day,e);
+    document.getElementById('module-content').innerHTML =
+      '<div class="card" style="border-left:4px solid var(--orange)"><h3>Error loading Day '+day+'</h3><p>'+e.message+'</p><p>Check that assets/www/data/day'+day+'.json exists and is valid JSON. Run <code>./scripts/test.sh</code> from project root to validate.</p><button class="btn secondary" onclick="showHome()">← Back to Home</button></div>';
   }
 }
 
@@ -161,14 +179,33 @@ document.addEventListener('touchend', e=>{
   }
 });
 
-// Offline indicator
-function updateOnline(){ document.getElementById('offline-indicator').classList.toggle('hidden', navigator.onLine); }
+// Offline indicator with more prominent messaging for Portal corpnet dependency
+function updateOnline(){
+  const el = document.getElementById('offline-indicator');
+  const online = navigator.onLine;
+  el.classList.toggle('hidden', online);
+  if(!online){
+    el.textContent = 'Offline – quizzes work fully offline. Reading links need corpnet Wi-Fi.';
+  }
+}
 window.addEventListener('online', updateOnline); window.addEventListener('offline', updateOnline);
+// Check initial state after slight delay for WebView to settle
+setTimeout(updateOnline, 500);
 
-// Checkpoint loading
+// Checkpoint loading with robust error handling
 async function loadCheckpoint(){
+  const container = document.getElementById('checkpoint-content');
+  container.innerHTML = '<p style="text-align:center;padding:2rem;color:#606770;">Loading checkpoint...</p>';
   try{
-    const resp=await fetch('data/checkpoint.json'); const data=await resp.json();
+    const resp=await fetch('data/checkpoint.json',{cache:'no-cache'});
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    const data=await resp.json();
+    if(!data.ordering || !data.explainBack || !data.openQuestions) throw new Error('Invalid checkpoint.json structure');
+    // restore full checkpoint HTML structure
+    container.innerHTML = `
+    <section><h3>Ordering Exercise</h3><p>Tap items in correct auction pipeline order:</p><div id="ordering-pool" class="ordering-pool"></div><div id="ordering-selected" class="ordering-selected"></div><button class="btn" onclick="checkOrdering()">Check Order</button><div id="ordering-feedback"></div></section>
+    <section><h3>Explain-Back Flashcards</h3><div id="explain-cards"></div></section>
+    <section><h3>Open Questions for Team</h3><ul id="open-questions"></ul></section>`;
     // ordering
     const pool=document.getElementById('ordering-pool');
     const sel=document.getElementById('ordering-selected');
@@ -200,7 +237,11 @@ async function loadCheckpoint(){
     // open questions
     const oq=document.getElementById('open-questions'); oq.innerHTML='';
     data.openQuestions.forEach(q=>{ const li=document.createElement('li'); li.textContent=q; oq.appendChild(li); });
-  }catch(e){ document.getElementById('checkpoint-content').innerHTML='<p>Error loading checkpoint.json</p>'; }
+  }catch(e){
+    console.error('Checkpoint load failed',e);
+    document.getElementById('checkpoint-content').innerHTML =
+      '<div class="card" style="border-left:4px solid var(--orange)"><h3>Error loading checkpoint</h3><p>'+e.message+'</p><p>Check assets/www/data/checkpoint.json exists and is valid. Run ./scripts/test.sh to validate.</p><button class="btn secondary" onclick="showHome()">← Back to Home</button></div>';
+  }
 }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
 
