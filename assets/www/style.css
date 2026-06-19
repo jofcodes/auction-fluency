@@ -25,7 +25,8 @@ body {
 /* Offline indicator - more prominent for Portal corpnet dependency */
 .offline {
   position: fixed; top: 0.5rem; right: 0.5rem;
-  background: #fff3cd; border: 2px solid #ffc107;
+  background: #e7f3ff; border: 2px solid var(--blue);
+  color: #0a2a5a;
   padding: 0.6rem 1rem; border-radius: 24px;
   font-size: 18px; font-weight:600; z-index: 1000;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -126,7 +127,7 @@ section h3 { margin:0.8rem 0 0.4rem; font-size:1.1rem; }
 .quiz-option.correct { background:#d4edda; border-color:var(--green); color:#155724; }
 .quiz-option.incorrect { background:#f8d7da; border-color:var(--orange); color:#721c24; }
 .quiz-option:disabled { cursor:default; }
-.explanation { background:#fff3cd; border-left:4px solid #ffc107; padding:0.6rem 0.8rem; border-radius:4px; margin-top:0.4rem; font-size:18px; }
+.explanation { background:#e7f3ff; border-left:4px solid var(--blue); padding:0.8rem 1rem; border-radius:6px; margin-top:0.6rem; font-size:18px; color:#0a2a5a; }
 
 /* Flashcard */
 .flashcard {
