@@ -1,0 +1,17 @@
+# Build outputs
+build/
+*.apk
+*.ap_
+*.dex
+*.idsig
+# Android
+local.properties
+.gradle/
+.idea/
+*.iml
+.DS_Store
+# Python / temp
+__pycache__/
+*.pyc
+# JDK local install (if ever in repo root, though we use ~/jdk)
+jdk/
