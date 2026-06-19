@@ -114,16 +114,28 @@ Others open in external browser when corpnet available; offline indicator shows 
 - My Sous Chef build pattern reference https://fb.workplace.com/permalink.php?story_fbid=pfbid032hiMPo1dn5JhqCVc6Zf2B9V4ADfYyAxgMDEMpZS8Vq7xr7ToeEaYwxAwoENhrhfCl&id=100034965797817
 - Jo 30-60-90 Plan https://docs.google.com/document/d/19zBkDTfJUfubH9TXIg0Z6Tu7nueaFA0EimIrlCv8gVc
 
-## Git
+## Git – completely separate from bee project
 
-Local git not yet initialized. Proposed remote separate from bee: `github.com/jofcodes/auction-fluency`. Initialize when ready:
+**This is NOT the bee repo.** Bee lives at `/Users/j0sephine/Documents/AI outputs/bee/` with remote `github.com/jofcodes/bee`. Auction Fluency lives at `/Users/j0sephine/Documents/AI outputs/auction-fluency/` with its own git history and proposed separate remote `github.com/jofcodes/auction-fluency`.
+
+Local git already initialized on main branch with initial commit. No remote configured yet to avoid accidental push to bee.
+
+To create separate GitHub repo and push:
 
 ```bash
 cd "/Users/j0sephine/Documents/AI outputs/auction-fluency"
-git init
-git add .
-git commit -m "Initial Auction Fluency Portal app scaffold"
-# create repo on GitHub then:
+# verify you're in auction-fluency not bee:
+pwd
+git remote -v   # should show nothing yet, NOT bee origin
+# create empty repo on GitHub named auction-fluency, then:
 git remote add origin git@github.com:jofcodes/auction-fluency.git
 git push -u origin main
 ```
+
+To double-check separation anytime:
+```bash
+ls -ld "/Users/j0sephine/Documents/AI outputs/bee" "/Users/j0sephine/Documents/AI outputs/auction-fluency"
+cd "/Users/j0sephine/Documents/AI outputs/bee" && git remote -v
+cd "/Users/j0sephine/Documents/AI outputs/auction-fluency" && git remote -v
+```
+First should show bee origin, second should show auction-fluency origin (or nothing until you add it). Never the same remote.
