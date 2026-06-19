@@ -129,7 +129,8 @@ CLASS_FILES=$(find "$BUILD_DIR/classes" -name "*.class")
 
 # 9. add classes.dex to apk
 echo "[4/6] aapt add dex..."
-"$AAPT" add "$BUILD_DIR/unsigned.apk" "$BUILD_DIR/classes.dex" >/dev/null
+# Must add from inside build directory so APK internal path is classes.dex not build/classes.dex
+( cd "$BUILD_DIR" && "$AAPT" add unsigned.apk classes.dex >/dev/null )
 
 # 10. zipalign
 echo "[5/6] zipalign..."
