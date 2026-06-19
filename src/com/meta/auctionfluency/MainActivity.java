@@ -2,14 +2,18 @@ package com.meta.auctionfluency;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.ConsoleMessage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 
 public class MainActivity extends Activity {
+
+    private static final String TAG = "AuctionFluency";
 
     private WebView webView;
 
@@ -30,10 +34,22 @@ public class MainActivity extends Activity {
         settings.setAllowFileAccessFromFileURLs(true);
         settings.setAllowUniversalAccessFromFileURLs(true);
         settings.setDatabaseEnabled(true);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE); // always load fresh assets from APK, avoid stale cache after updates
+        settings.setDomStorageEnabled(true);
 
         webView.setWebViewClient(new WebViewClient());
-        webView.setWebChromeClient(new WebChromeClient());
+
+        // Enhanced WebChromeClient to log JavaScript console to logcat for debugging on Portal
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage cm) {
+                Log.d(TAG, cm.message() + " -- From line " + cm.lineNumber() + " of " + cm.sourceId());
+                return true;
+            }
+        });
+
+        // Enable WebView debugging for Chrome DevTools remote inspector via chrome://inspect
+        WebView.setWebContentsDebuggingEnabled(true);
 
         // Load single-page app from assets
         webView.loadUrl("file:///android_asset/www/index.html");
