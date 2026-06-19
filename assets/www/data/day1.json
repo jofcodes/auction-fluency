@@ -1,0 +1,49 @@
+{
+  "title": "Day 1: Auction Fundamentals",
+  "topic": "Auction Fundamentals",
+  "readingLinks": [
+    {"title": "Ads Ranking – Auction Wiki", "url": "https://www.internalfb.com/wiki/Ads_Ranking/Auction/"},
+    {"title": "Ads Ranking – Bidding Wiki", "url": "https://www.internalfb.com/wiki/Ads_Ranking/Bidding/"}
+  ],
+  "concepts": [
+    "Second-price auction: winner pays second highest bid, not their own – encourages truthful bidding.",
+    "VCG mechanism generalizes second-price to multiple slots with externality pricing – each advertiser pays harm caused to others.",
+    "Bid = value × probability – advertiser value per outcome multiplied by predicted action rate (pCTR, pCVR).",
+    "Reserve prices set minimum clearing price per auction to protect user experience and publisher yield.",
+    "Auction density affects competition – more eligible ads increases price pressure and improves match quality.",
+    "Welfare maximization objective balances advertiser value, user relevance, and platform long-term health."
+  ],
+  "quiz": [
+    {
+      "type": "mc",
+      "question": "In a second-price auction, what does the winner pay?",
+      "options": ["Their own bid amount", "The second highest bid amount", "The average of all bids", "A fixed reserve only"],
+      "correctIndex": 1,
+      "explanation": "Second-price incentivizes truthful bidding because payment is decoupled from your stated bid – you pay the next best alternative."
+    },
+    {
+      "type": "tf",
+      "statement": "VCG pricing means each winner pays the total harm their presence causes to other participants' total value.",
+      "answer": true,
+      "why": "True. VCG computes externality – difference in total welfare with vs without you – generalizing second-price logic to multi-slot."
+    },
+    {
+      "type": "flashcard",
+      "front": "Why is bid decomposed as value × probability?",
+      "back": "Advertisers care about outcomes (clicks, conversions), not impressions. We predict p(action|impression) and multiply by advertiser-declared value per action to get expected value bid in impression auction. Separates prediction from valuation."
+    },
+    {
+      "type": "mc",
+      "question": "What is the primary role of reserve prices?",
+      "options": ["Increase advertiser ROI", "Guarantee every auction has a winner", "Set floor to protect UX and ensure minimum quality / yield", "Replace bidding entirely"],
+      "correctIndex": 2,
+      "explanation": "Reserves filter low-value ads, protect user experience from irrelevant ads, and ensure publisher doesn't sell inventory below opportunity cost."
+    },
+    {
+      "type": "tf",
+      "statement": "Higher auction density generally leads to lower clearing prices.",
+      "answer": false,
+      "why": "False – more competition pushes clearing price up toward true value, improving efficiency and yield (though diminishing returns exist)."
+    }
+  ]
+}

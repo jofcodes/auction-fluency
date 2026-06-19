@@ -1,0 +1,31 @@
+{
+  "ordering": {
+    "items": ["Measurement", "Ranking", "Bid submission", "Delivery", "Pacing"],
+    "correctOrder": ["Bid submission", "Pacing", "Ranking", "Delivery", "Measurement"]
+  },
+  "explainBack": [
+    {
+      "prompt": "Explain second-price auction in your own words, then tap to compare.",
+      "modelAnswer": "Second-price: highest bidder wins but pays second-highest bid. Incentivizes truthful value revelation because payment independent of your bid as long as you win. VCG generalizes to multi-slot by charging externality."
+    },
+    {
+      "prompt": "Explain bid = value × probability decomposition.",
+      "modelAnswer": "Advertiser values outcomes not impressions. We predict probability of click/conversion given impression, multiply by advertiser value per outcome to get expected value bid. Separates ML prediction from business valuation."
+    },
+    {
+      "prompt": "Explain OVAR purpose.",
+      "modelAnswer": "Organic Value Aligned Ranking aligns ads objective with organic content quality signals to protect long-term user experience, using GR2 reward model to balance advertiser value vs user satisfaction vs ecosystem health."
+    },
+    {
+      "prompt": "Explain why pacing simulator is useful before live experiment.",
+      "modelAnswer": "Simulator replays historical logs with counterfactual bids to estimate delivery, cost, value under new policy safely offline, reducing risk and enabling many variants testing before live traffic exposure."
+    }
+  ],
+  "openQuestions": [
+    "How should GR2 reward weights trade off short-term advertiser value vs long-term user retention?",
+    "What guardrail metrics would trigger rollback of gradient auction pilot?",
+    "Which randomization unit minimizes interference for auction parameter experiments – request, user, or advertiser?",
+    "How do we validate counterfactual simulator accuracy against live A/B ground truth?",
+    "What DPA surfaces are best initial testbeds for generative auction expansion and why?"
+  ]
+}

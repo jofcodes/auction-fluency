@@ -1,0 +1,47 @@
+{
+  "title": "Day 2: Bidding & Pacing",
+  "topic": "Bidding & Pacing",
+  "readingLinks": [
+    {"title": "Ads Ranking – Pacing Wiki", "url": "https://www.internalfb.com/wiki/Ads_Ranking/Pacing/"}
+  ],
+  "concepts": [
+    "Wage and rate model: budget is wage, pacing system sets spend rate to smooth delivery across flight.",
+    "Budget pacing prevents early exhaustion – distributes impressions evenly to maximize learning and stable performance.",
+    "Bid shading lowers bid in first-price-like environments to avoid overpaying; throttling skips auctions entirely to control spend rate.",
+    "Bid landscape estimates win probability vs bid price – used to find efficient bid that meets delivery goal at minimal cost.",
+    "Delivery guarantees require pacing to adapt to supply volatility, competition shifts, and prediction errors in real time."
+  ],
+  "quiz": [
+    {
+      "type": "mc",
+      "question": "What is the main goal of budget pacing?",
+      "options": ["Spend budget as fast as possible", "Smooth spend over time to maximize stable delivery and learning", "Always bid maximum", "Disable reserves"],
+      "correctIndex": 1,
+      "explanation": "Pacing spreads budget to avoid early exhaustion, maintain consistent auction participation, and allow model learning throughout flight."
+    },
+    {
+      "type": "flashcard",
+      "front": "Bid shading vs throttling – what's the difference?",
+      "back": "Bid shading reduces bid amount but still participates – you might win at lower price. Throttling skips the auction entirely – zero chance to win that impression, used when rate must drop sharply. Shading is finer control, throttling is coarser."
+    },
+    {
+      "type": "tf",
+      "statement": "Wage in pacing model refers to total budget available, rate is spend per unit time.",
+      "answer": true,
+      "why": "True. Wage = budget constraint, rate controller decides how fast to spend to hit smooth delivery target."
+    },
+    {
+      "type": "mc",
+      "question": "Bid landscape helps pacing system to:",
+      "options": ["Predict user age", "Estimate win rate at different bid levels to choose efficient bid", "Replace auction with fixed price", "Ignore competition"],
+      "correctIndex": 1,
+      "explanation": "Landscape maps bid → win probability and expected cost, letting pacer pick minimal bid achieving target delivery rate."
+    },
+    {
+      "type": "tf",
+      "statement": "Pacing only needs to run once at campaign start.",
+      "answer": false,
+      "why": "False – pacing is continuous feedback loop adjusting every few minutes to supply, competition, and performance changes."
+    }
+  ]
+}

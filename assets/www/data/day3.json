@@ -1,0 +1,47 @@
+{
+  "title": "Day 3: Full Funnel",
+  "topic": "Full Funnel",
+  "readingLinks": [
+    {"title": "Ads Ranking – Full Funnel Overview (internal search)", "url": "https://www.internalfb.com/wiki/Ads_Ranking/"}
+  ],
+  "concepts": [
+    "Full funnel spans impression → click → conversion – each stage has its own prediction model and optimization goal.",
+    "oCPM (optimized CPM) bids on impressions but optimizes toward downstream actions using predicted conversion rate.",
+    "Value optimization lets advertisers bid their true business value per conversion, not just volume – system maximizes total value not just count.",
+    "Attribution windows define how far back a click or view gets credit for conversion – affects signal and optimization stability.",
+    "Conversion modeling fills gaps from delayed, sparse, or missing conversion signals using statistical imputation and modeling."
+  ],
+  "quiz": [
+    {
+      "type": "mc",
+      "question": "What does oCPM optimize for?",
+      "options": ["Impressions only", "Clicks or conversions predicted from impression using pCTR/pCVR", "Lowest CPM regardless of outcome", "Manual bid only"],
+      "correctIndex": 1,
+      "explanation": "oCPM charges per impression but uses predicted action rate to bid toward downstream value – impression is proxy for expected outcome."
+    },
+    {
+      "type": "flashcard",
+      "front": "Why use value optimization instead of conversion volume optimization?",
+      "back": "Not all conversions equal value – a $100 purchase vs $10 purchase. Value optimization bids proportional to expected revenue, maximizing advertiser ROAS and platform long-term value, not just count."
+    },
+    {
+      "type": "tf",
+      "statement": "Attribution window length has no impact on optimization.",
+      "answer": false,
+      "why": "False – longer windows capture more conversions but add noise and delay feedback; shorter windows are faster but miss delayed conversions. Tradeoff affects pacing stability."
+    },
+    {
+      "type": "mc",
+      "question": "Conversion modeling is needed because:",
+      "options": ["Conversions are always instantaneous and fully observed", "Conversions can be delayed, sparse, or lost due to privacy constraints – modeling imputes missing signal", "It replaces bidding", "It disables pacing"],
+      "correctIndex": 1,
+      "explanation": "Real-world conversion data is noisy and delayed. Modeling provides timely unbiased estimates for optimization loop."
+    },
+    {
+      "type": "tf",
+      "statement": "Full funnel optimization means optimizing each stage independently without coordination.",
+      "answer": false,
+      "why": "False – stages are linked. Impression bid must account for downstream click and conversion probabilities jointly to maximize end value."
+    }
+  ]
+}

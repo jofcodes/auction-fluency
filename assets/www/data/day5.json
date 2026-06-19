@@ -1,0 +1,47 @@
+{
+  "title": "Day 5: Simulation & GR2",
+  "topic": "Simulation & GR2",
+  "readingLinks": [
+    {"title": "Jo 30-60-90 Plan (context)", "url": "https://docs.google.com/document/d/19zBkDTfJUfubH9TXIg0Z6Tu7nueaFA0EimIrlCv8gVc"}
+  ],
+  "concepts": [
+    "Pacing simulator replays historical auction logs with counterfactual bids to estimate delivery and cost under new pacing policies without live traffic risk.",
+    "Experiment design for auction changes needs careful randomization unit – user, request, or advertiser – to avoid interference and spillover bias.",
+    "Counterfactual measurement uses replay or synthetic control to estimate what would have happened under alternative auction parameters.",
+    "Scaling from pilot to production requires staged rollout, guardrail metrics on user experience and advertiser value, and rollback criteria.",
+    "DPA test surfaces allow controlled evaluation of generative auction and OVAR changes on limited inventory before broad launch."
+  ],
+  "quiz": [
+    {
+      "type": "mc",
+      "question": "Why use a pacing simulator instead of live A/B only?",
+      "options": ["Simulators are slower", "Simulators allow safe counterfactual exploration of many policy variants on historical data before risking live budget", "Simulators replace auctions", "Simulators increase cost"],
+      "correctIndex": 1,
+      "explanation": "Replay simulation tests policy changes offline at scale, reducing risk and speeding iteration before live experiment."
+    },
+    {
+      "type": "flashcard",
+      "front": "What is counterfactual measurement in auction experiments?",
+      "back": "Estimating outcome under alternative auction parameters that were not actually applied – via replay simulation, synthetic control groups, or instrumental variables – to attribute causal effect of change beyond simple A/B difference."
+    },
+    {
+      "type": "tf",
+      "statement": "Scaling pilot to production should happen in one big switch for speed.",
+      "answer": false,
+      "why": "False – staged rollout with guardrails allows detection of regressions in user experience or advertiser value before full impact. Rollback plan essential."
+    },
+    {
+      "type": "mc",
+      "question": "Choosing randomization unit in auction experiment matters because:",
+      "options": ["It has no effect", "Wrong unit causes interference – e.g., user-level randomization can leak across auctions within same request, biasing results", "It only affects UI color", "It disables pacing"],
+      "correctIndex": 1,
+      "explanation": "Auction interference violates SUTVA – careful unit choice (request, user, advertiser cluster) reduces spillover and gives valid causal estimates."
+    },
+    {
+      "type": "tf",
+      "statement": "DPA test surfaces are used for controlled evaluation of new auction mechanisms on limited inventory.",
+      "answer": true,
+      "why": "True – Dynamic Product Ads or similar controlled surfaces provide safer initial testbed before expanding to broad auction traffic."
+    }
+  ]
+}

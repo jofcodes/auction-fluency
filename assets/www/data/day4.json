@@ -1,0 +1,47 @@
+{
+  "title": "Day 4: Gradient Auction & OVAR",
+  "topic": "Gradient Auction & OVAR",
+  "readingLinks": [
+    {"title": "WS1 Canonical Doc – Gradient Auction", "url": "https://docs.google.com/document/d/1ZE-KcKbSMiJdV3QymbiG_VQJkUi8gFi79XMP-Oi58i8/edit"}
+  ],
+  "concepts": [
+    "Gradient auction pilot moves from discrete auction steps to differentiable auction mechanics enabling gradient-based optimization end-to-end.",
+    "Generative auction vision uses generative models to synthesize candidate ads and auction parameters conditioned on context, expanding beyond fixed candidate set.",
+    "Organic Value Aligned Ranking (OVAR) aligns ads ranking objective with organic content value signals to improve long-term user experience, not just short-term advertiser value.",
+    "GR2 reward model provides learned reward balancing multiple objectives – advertiser value, user satisfaction, ecosystem health – as scalar for optimization.",
+    "Meta-optimization component tunes auction parameters across experiments using counterfactual estimates rather than manual grid search."
+  ],
+  "quiz": [
+    {
+      "type": "mc",
+      "question": "What does gradient auction enable that traditional auction does not?",
+      "options": ["Fixed manual rules only", "End-to-end differentiable optimization of auction parameters via gradients", "Elimination of bidding", "Random ad selection"],
+      "correctIndex": 1,
+      "explanation": "Differentiability allows gradient descent to tune auction mechanics jointly with ranking models, rather than separate heuristic steps."
+    },
+    {
+      "type": "flashcard",
+      "front": "What is OVAR trying to solve?",
+      "back": "Traditional ads ranking optimizes advertiser value which can diverge from user organic experience. OVAR incorporates organic value signals – dwell time, satisfaction, long-term retention proxies – into ads ranking so ads feel native and preserve ecosystem health."
+    },
+    {
+      "type": "tf",
+      "statement": "GR2 is a reward model that balances multiple objectives into single scalar for auction optimization.",
+      "answer": true,
+      "why": "True. GR2 learns weights across advertiser value, user experience, diversity etc., providing unified reward for gradient-based tuning."
+    },
+    {
+      "type": "mc",
+      "question": "Generative auction differs from classic auction by:",
+      "options": ["Using only historical candidates", "Synthesizing new ad candidates and parameters conditioned on user context via generative model", "Removing ranking entirely", "Bidding in dollars only"],
+      "correctIndex": 1,
+      "explanation": "Generative approach expands candidate space beyond retrieved set, potentially creating better matched ads on the fly."
+    },
+    {
+      "type": "tf",
+      "statement": "Meta-optimization means manually picking auction parameters once per quarter.",
+      "answer": false,
+      "why": "False – it's automated continuous tuning using counterfactual estimates from experiments, not manual periodic picks."
+    }
+  ]
+}

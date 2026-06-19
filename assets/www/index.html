@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Auction Fluency</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="offline-indicator" class="offline hidden">Offline – quizzes work, reading links need corpnet</div>
+
+<div id="progress-container">
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="progress-text">0% complete</div>
+</div>
+
+<!-- HOME VIEW -->
+<div id="home-view" class="view active">
+  <header>
+    <h1>🎓 Auction Fluency</h1>
+    <p class="subtitle">5-day self-paced onboarding for Meta ads auction</p>
+    <button id="continue-btn" class="btn secondary hidden">Continue where you left off →</button>
+  </header>
+  <div id="home-cards" class="card-grid">
+    <!-- 5 day cards injected by JS -->
+  </div>
+</div>
+
+<!-- MODULE VIEW -->
+<div id="module-view" class="view">
+  <div class="module-header">
+    <button class="btn back" onclick="showHome()">← Home</button>
+    <div class="nav-arrows">
+      <button class="btn nav" onclick="navDay(-1)">‹ Prev</button>
+      <span id="day-label">Day 1</span>
+      <button class="btn nav" onclick="navDay(1)">Next ›</button>
+    </div>
+  </div>
+
+  <div id="module-content">
+    <section id="reading-section">
+      <h2>Reading</h2>
+      <div id="reading-links"></div>
+    </section>
+
+    <section id="concepts-section">
+      <h2>Key Concepts</h2>
+      <ul id="concepts-list"></ul>
+    </section>
+
+    <section id="quiz-section">
+      <h2>Quiz</h2>
+      <div id="quiz-container"></div>
+      <div id="quiz-result" class="hidden"></div>
+    </section>
+  </div>
+</div>
+
+<!-- CHECKPOINT VIEW -->
+<div id="checkpoint-view" class="view">
+  <div class="module-header">
+    <button class="btn back" onclick="showHome()">← Home</button>
+    <h2>Day 5 Checkpoint</h2>
+  </div>
+  <div id="checkpoint-content">
+    <section>
+      <h3>Ordering Exercise</h3>
+      <p>Tap items in correct auction pipeline order:</p>
+      <div id="ordering-pool" class="ordering-pool"></div>
+      <div id="ordering-selected" class="ordering-selected"></div>
+      <button class="btn" onclick="checkOrdering()">Check Order</button>
+      <div id="ordering-feedback"></div>
+    </section>
+    <section>
+      <h3>Explain-Back Flashcards</h3>
+      <div id="explain-cards"></div>
+    </section>
+    <section>
+      <h3>Open Questions for Team</h3>
+      <ul id="open-questions"></ul>
+    </section>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
