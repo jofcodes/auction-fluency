@@ -112,7 +112,7 @@ To view JavaScript console logs from Portal for debugging (we enabled WebChromeC
 ```bash
 adb logcat -s AuctionFluency:D chromium:D | grep -i -E "auction|day|fetch|error|console"
 ```
-Should show no fetch errors because Day JSON data is now embedded directly in app.js version 1.2 to avoid file:// CORS issues on WebView.
+Should show no fetch errors because Day JSON data is now embedded directly in app.js version 2.1 to avoid file:// CORS issues on WebView. JavaScript console logs from WebView are bridged to logcat via WebChromeClient onConsoleMessage override with tag AuctionFluency for debugging.
 
 To inspect via Chrome DevTools remote inspector (because we enabled WebView.setWebContentsDebuggingEnabled true):
 - With Portal USB connected and app running, open Chrome on Mac → navigate to `chrome://inspect` → under Remote Target you should see Portal device and Auction Fluency WebView → click Inspect to see console, network, DOM live.
@@ -123,28 +123,29 @@ To inspect via Chrome DevTools remote inspector (because we enabled WebView.setW
 
 ```
 auction-fluency/
-├── AndroidManifest.xml          # Package declaration, permissions, launcher activity config for Portal
-├── build.sh                     # Shell build pipeline: aapt package → javac compile → d8 dex → aapt add dex → zipalign → apksigner sign. No Gradle.
+├── AndroidManifest.xml          # Package declaration, permissions, launcher activity config for Portal; sensorLandscape, singleTask launchMode, hardwareAccelerated true matching Beehive Monitor pattern
+├── build.sh                     # Shell build pipeline: aapt package → javac compile → d8 dex → aapt add dex → zipalign → apksigner sign. No Gradle. Auto-detects SDK, build-tools, platform jar, JDK including ~/jdk fallback.
 ├── src/com/meta/auctionfluency/
-│   └── MainActivity.java        # Android Activity hosting WebView fullscreen immersive, keep screen on, JS console logging to logcat
+│   └── MainActivity.java        # Android Activity hosting WebView fullscreen immersive sticky, keep screen on, JS console logging to logcat with tag AuctionFluency, WebView debugging enabled for chrome://inspect, cache disabled to prevent stale assets
 ├── res/
 │   ├── values/strings.xml       # App display name "Auction Fluency"
-│   └── drawable/ic_launcher.xml # Vector icon: Meta blue background, white gavel, fluency swoosh lines
-├── assets/www/                  # Web app bundled inside APK, loaded via file:///android_asset/www/index.html
-│   ├── index.html               # Single-page app shell with three views: home, module, checkpoint
-│   ├── style.css                # Portal-optimized styles: 20px base font, 56px min touch targets, landscape grid, Meta blue theme, card UI
-│   ├── app.js                   # Quiz engine, progress tracking via localStorage, swipe navigation, embedded DAY_DATA JSON objects to avoid fetch CORS issues
-│   └── data/                    # Source JSON files for content authoring (also embedded into app.js at build time conceptually — currently manual sync via script, see below)
-│       ├── day1.json … day5.json
-│       └── checkpoint.json
+│   └── drawable/ic_launcher.xml # Vector icon: Meta blue background #0064E0, white gavel icon, fluency swoosh lines — renders in Portal launcher alongside Beehive Monitor
+├── assets/www/                  # Web app bundled inside APK, loaded via file:///android_asset/www/index.html, fully offline capable
+│   ├── index.html               # Single-page app shell with 5 views: onboarding overlay, home, module with stepper, checkpoint with hint system, glossary modal, settings modal, celebration overlay
+│   ├── style.css                # Portal-optimized styles v2.1: 20px base font with 1.6 line height for 2-foot readability, 56px min touch targets, landscape 2-column grid, Meta blue theme, card UI with Duolingo-style progress visualization, modal overlay system, stepper dots, progress rings, flashcard 3D flip animation, confidence buttons, review summary styles, celebration confetti animation, blue informational notes (changed from yellow per user feedback), accessibility focus outlines and colorblind dual encoding via icons alongside colors
+│   ├── app.js                   # Single-page app logic v2.1: onboarding tour with dismiss persistence, enhanced home rendering with progress rings time estimates difficulty badges unlock visualization and streak counter, stepper navigation with IntersectionObserver auto-update based on scroll position, quiz engine with question counter progress dots review summary and retry missed placeholder, flashcard 3D flip with confidence self-assessment tracking to localStorage, glossary modal with alphabetical touch filter no keyboard required per Portal spec, settings modal with version display reset progress and learning science basis explanation, celebration overlay with confetti animation and personalized PM messaging for Jo, reading progress tracking separate from quiz with visited checkmarks persisted to separate localStorage key, checkpoint ordering exercise with hint system and partial credit feedback, embedded DAY_DATA CHECKPOINT_DATA GLOSSARY_DATA constants to avoid file:// fetch CORS issues, robust error handling with fallback to fetch for browser dev server testing
+│   └── data/                    # Source JSON files for content authoring — authoritative source of truth for version control history; embedded copy inside app.js must be kept in sync manually for now (see Edit Content section)
+│       ├── day1.json … day5.json    # 5 daily modules following Reading → Concepts → Quiz structure per brief
+│       └── checkpoint.json          # Final checkpoint ordering exercise, explain-back flashcards, open questions
 ├── scripts/
-│   ├── test.sh                  # Validates JSON syntax, required project files exist, AndroidManifest package and SDK versions correct
-│   ├── deploy.sh                # adb install -r + am start, one-time deploy pattern
-│   └── refresh.sh               # rebuild + redeploy shortcut for iterative development
+│   ├── test.sh                  # Validates JSON syntax, required project files exist including new CONTRIBUTING.md and LICENSE, AndroidManifest package and SDK versions correct, no Android SDK required runs under 2 seconds
+│   ├── deploy.sh                # adb install -r + am start with launcher cache refresh via monkey command and force-stop launcher variants, verification commands printed after deploy to confirm package installed and activity registered
+│   └── refresh.sh               # rebuild + redeploy shortcut with JAVA_HOME auto-detection fallback matching build.sh, clears app data tip included for cache invalidation after content updates
 ├── docs/
 │   └── brief.md                 # Distilled original brief artifact with reference links preserved
-├── .gitignore                   # excludes build/, *.apk, *.dex, Gradle/IDE files, Python cache, DS_Store
-├── LICENSE                      # MIT License
+├── .gitignore                   # excludes build/, *.apk, *.dex, *.ap_, Gradle/IDE files, Python cache, DS_Store, jdk/
+├── LICENSE                      # MIT License Copyright Jo Foucher 2026
+├── CONTRIBUTING.md              # Contributor guide with development workflow, code style conventions per language tied to Portal constraints and learning science principles, git workflow emphasizing project separation from bee, testing checklist, architecture decision records
 └── README.md                    # this file
 ```
 
