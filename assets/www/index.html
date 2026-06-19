@@ -7,22 +7,112 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="offline-indicator" class="offline hidden">Offline – quizzes work, reading links need corpnet</div>
+<div id="offline-indicator" class="offline hidden">Offline – quizzes work fully offline. Reading links need corpnet Wi-Fi.</div>
+
+<!-- ONBOARDING OVERLAY FOR FIRST-TIME USERS -->
+<div id="onboarding-overlay" class="modal-overlay hidden">
+  <div class="modal-card onboarding-card">
+    <h2>Welcome to Auction Fluency</h2>
+    <p class="onboard-subtitle">5-day self-paced onboarding for Meta ads auction system — designed for Portal touchscreen, no keyboard needed.</p>
+    <div class="onboard-steps">
+      <div class="onboard-step"><div class="step-num">1</div><div><strong>Home shows 5 day cards</strong> — each ~15 min. Tap a card to start. Green border means completed, blue pulse means current recommended day. Progress bar top shows overall %.</div></div>
+      <div class="onboard-step"><div class="step-num">2</div><div><strong>Inside each day: Reading → Concepts → Quiz.</strong> Stepper dots top show where you are. Tap Reading links to open wiki docs (needs corpnet). Concepts are key bullet takeaways. Quiz has 3 types.</div></div>
+      <div class="onboard-step"><div class="step-num">3</div><div><strong>Quiz types:</strong> Multiple choice gives immediate green correct / orange incorrect feedback with blue explanation box. Flashcard tap to flip, then rate confidence. True/False shows why explanation.</div></div>
+      <div class="onboard-step"><div class="step-num">4</div><div><strong>Swipe left/right</strong> to navigate between days, or use Prev/Next buttons. All touch targets minimum 56px for easy tapping from 2 feet away.</div></div>
+      <div class="onboard-step"><div class="step-num">5</div><div><strong>Progress saves automatically</strong> via localStorage — close app and reopen to continue where left off. Use ⚙ Settings to reset progress or view glossary.</div></div>
+    </div>
+    <div style="display:flex; gap:1rem; margin-top:1.2rem;">
+      <button class="btn secondary" onclick="dismissOnboarding(true)">Don't show again</button>
+      <button class="btn" onclick="dismissOnboarding(false)">Got it — start learning →</button>
+    </div>
+    <p style="font-size:14px;color:#606770;margin-top:0.8rem;">Tip: this overlay appears once. Reopen anytime via Settings → Show Tour.</p>
+  </div>
+</div>
+
+<!-- GLOSSARY MODAL — touch-friendly alphabetical filter, no keyboard required per Portal spec -->
+<div id="glossary-overlay" class="modal-overlay hidden">
+  <div class="modal-card glossary-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+      <h2>Glossary — Auction Terms</h2>
+      <button class="btn secondary" style="min-width:80px" onclick="closeGlossary()">Close ✕</button>
+    </div>
+    <p style="font-size:16px;color:#606770;margin-bottom:0.6rem;">Tap a letter to filter terms. No keyboard needed — designed for Portal touch-only use.</p>
+    <div id="glossary-alpha" class="alpha-filter"></div>
+    <div id="glossary-list" style="max-height:50vh; overflow-y:auto; margin-top:0.8rem;"></div>
+  </div>
+</div>
+
+<!-- SETTINGS / ABOUT MODAL -->
+<div id="settings-overlay" class="modal-overlay hidden">
+  <div class="modal-card settings-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+      <h2>Settings & About</h2>
+      <button class="btn secondary" style="min-width:80px" onclick="closeSettings()">Close ✕</button>
+    </div>
+    <section style="margin-bottom:1rem;">
+      <h3>App Information</h3>
+      <p><strong>Auction Fluency</strong> v<span id="app-version-display">1.2.0</span></p>
+      <p style="font-size:16px;color:#606770;">Self-paced onboarding for Meta ads auction system. 5 days, ~15 min per day, designed for Portal touchscreen landscape use. Built with Android WebView shell — no server backend, fully offline capable for quizzes.</p>
+      <p style="font-size:16px;color:#606770;">Package: com.meta.auctionfluency &nbsp;|&nbsp; Target API 28 &nbsp;|&nbsp; Built with shell aapt javac d8 apksigner (no Gradle)</p>
+    </section>
+    <section style="margin-bottom:1rem;">
+      <h3>Learning Science Basis</h3>
+      <p style="font-size:16px;">This app applies evidence-based learning principles: active recall via quizzes immediately after concepts (testing effect), spaced exposure across 5 days, elaborative interrogation via explain-back flashcards, interleaving of multiple question types, and immediate corrective feedback with explanations to strengthen memory traces and reduce illusion of fluency.</p>
+    </section>
+    <section style="margin-bottom:1rem;">
+      <h3>Progress Management</h3>
+      <div style="display:flex; gap:0.8rem; flex-wrap:wrap;">
+        <button class="btn secondary" onclick="showOnboarding(true)">Show Tour Again</button>
+        <button class="btn secondary" onclick="openGlossary()">Open Glossary</button>
+        <button class="btn" style="background:var(--orange)" onclick="resetProgress()">Reset Progress to 0%</button>
+      </div>
+      <p id="progress-detail" style="font-size:14px;color:#606770;margin-top:0.6rem;"></p>
+    </section>
+    <section>
+      <h3>References & Source</h3>
+      <p style="font-size:14px;"><a href="https://github.com/jofcodes/auction-fluency" target="_blank">github.com/jofcodes/auction-fluency</a> — source code, separate from bee project</p>
+      <p style="font-size:14px;">Original brief: Metamate artifact cd49da6b — AI Native Analytics Playbook methodology adapted for auction domain.</p>
+    </section>
+  </div>
+</div>
+
+<!-- CELEBRATION OVERLAY -->
+<div id="celebration-overlay" class="modal-overlay hidden">
+  <div class="modal-card celebration-card">
+    <div class="celebration-icon">🎉</div>
+    <h2 id="celebration-title">Day Complete!</h2>
+    <p id="celebration-message">Great work building auction fluency step by step.</p>
+    <p id="celebration-detail" style="font-size:16px;color:#606770;"></p>
+    <button class="btn" onclick="closeCelebration()">Continue →</button>
+  </div>
+</div>
 
 <div id="progress-container">
-  <div id="progress-bar"><div id="progress-fill"></div></div>
-  <div id="progress-text">0% complete</div>
+  <div style="display:flex; align-items:center; gap:1rem; flex:1;">
+    <div style="display:flex; flex-direction:column; flex:1;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.2rem;">
+        <span id="progress-text" style="font-weight:600;">0% complete</span>
+        <span id="streak-text" style="font-size:14px;color:#606770;">Start your streak!</span>
+      </div>
+      <div id="progress-bar"><div id="progress-fill"></div></div>
+    </div>
+    <button class="icon-btn" onclick="openGlossary()" title="Glossary" aria-label="Open glossary">📖</button>
+    <button class="icon-btn" onclick="openSettings()" title="Settings" aria-label="Open settings">⚙</button>
+  </div>
 </div>
 
 <!-- HOME VIEW -->
 <div id="home-view" class="view active">
   <header>
-    <h1>🎓 Auction Fluency</h1>
-    <p class="subtitle">5-day self-paced onboarding for Meta ads auction</p>
+    <h1>Auction Fluency</h1>
+    <p class="subtitle">5-day self-paced onboarding for Meta ads auction — designed for Portal touchscreen</p>
     <button id="continue-btn" class="btn secondary hidden">Continue where you left off →</button>
   </header>
   <div id="home-cards" class="card-grid">
-    <!-- 5 day cards injected by JS -->
+    <!-- 5 day cards injected by JS with enhanced visual hierarchy -->
+  </div>
+  <div style="text-align:center; margin-top:1.5rem; color:#606770; font-size:14px;">
+    <p>Tip: tap ⚙ top right for Settings, glossary, reset progress, or replay tour. Tap 📖 for quick glossary lookup without leaving home.</p>
   </div>
 </div>
 
@@ -37,21 +127,43 @@
     </div>
   </div>
 
+  <!-- Stepper dots showing Reading → Concepts → Quiz progress within module -->
+  <div id="stepper-container" class="stepper">
+    <div class="step-dot active" data-step="reading" onclick="scrollToSection('reading-section')"><span class="dot">1</span><span class="step-label">Reading</span></div>
+    <div class="step-line"></div>
+    <div class="step-dot" data-step="concepts" onclick="scrollToSection('concepts-section')"><span class="dot">2</span><span class="step-label">Concepts</span></div>
+    <div class="step-line"></div>
+    <div class="step-dot" data-step="quiz" onclick="scrollToSection('quiz-section')"><span class="dot">3</span><span class="step-label">Quiz</span></div>
+  </div>
+
   <div id="module-content">
     <section id="reading-section">
-      <h2>Reading</h2>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Reading <span class="section-badge">~5 min</span></h2>
+        <span id="reading-progress" class="section-status">Not started</span>
+      </div>
+      <p style="font-size:16px;color:#606770; margin-bottom:0.8rem;">Tap cards below to open internal wiki links in browser. Requires corpnet Wi-Fi. Progress tracked automatically when tapped.</p>
       <div id="reading-links"></div>
     </section>
 
     <section id="concepts-section">
-      <h2>Key Concepts</h2>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Key Concepts <span class="section-badge">~3 min</span></h2>
+        <span class="section-status">Review</span>
+      </div>
+      <p style="font-size:16px;color:#606770; margin-bottom:0.8rem;">Core takeaways distilled for quick recall. Tap glossary icon 📖 top bar anytime to look up terms.</p>
       <ul id="concepts-list"></ul>
     </section>
 
     <section id="quiz-section">
-      <h2>Quiz</h2>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Quiz <span class="section-badge">~7 min</span></h2>
+        <span id="quiz-progress-text" class="section-status">Not started</span>
+      </div>
+      <div id="quiz-progress-dots" class="quiz-dots"></div>
       <div id="quiz-container"></div>
       <div id="quiz-result" class="hidden"></div>
+      <div id="quiz-review" class="hidden"></div>
     </section>
   </div>
 </div>
@@ -60,24 +172,40 @@
 <div id="checkpoint-view" class="view">
   <div class="module-header">
     <button class="btn back" onclick="showHome()">← Home</button>
-    <h2>Day 5 Checkpoint</h2>
+    <h2>Day 5 Final Checkpoint</h2>
   </div>
   <div id="checkpoint-content">
     <section>
-      <h3>Ordering Exercise</h3>
-      <p>Tap items in correct auction pipeline order:</p>
-      <div id="ordering-pool" class="ordering-pool"></div>
-      <div id="ordering-selected" class="ordering-selected"></div>
-      <button class="btn" onclick="checkOrdering()">Check Order</button>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Ordering Exercise</h3>
+        <button class="btn secondary" style="min-height:44px; font-size:16px; padding:0 0.8rem;" onclick="showOrderingHint()">💡 Hint</button>
+      </div>
+      <p>Tap items below in correct auction pipeline order. Tap selected items to move back to pool. Use hint if stuck — shows first correct item as scaffold.</p>
+      <div id="ordering-pool" class="ordering-pool" aria-label="Available items pool"></div>
+      <div style="text-align:center; font-size:24px; color:#606770; margin:0.2rem 0;">↓</div>
+      <div id="ordering-selected" class="ordering-selected" aria-label="Your selected order"></div>
+      <div style="display:flex; gap:0.8rem; margin-top:0.6rem;">
+        <button class="btn" onclick="checkOrdering()">Check Order</button>
+        <button class="btn secondary" onclick="resetOrdering()">Reset</button>
+      </div>
       <div id="ordering-feedback"></div>
+      <div id="ordering-hint" class="hidden" style="margin-top:0.6rem; font-size:16px; color:#606770;"></div>
     </section>
     <section>
       <h3>Explain-Back Flashcards</h3>
+      <p style="font-size:16px;color:#606770;">Tap card to flip and reveal model answer. Then rate your recall confidence to build metacognitive awareness — key skill for PM effectiveness in technical domains.</p>
       <div id="explain-cards"></div>
     </section>
     <section>
-      <h3>Open Questions for Team</h3>
+      <h3>Open Questions for Team Discussion</h3>
+      <p style="font-size:16px;color:#606770;">These have no single right answer — bring to your team meeting or 1:1 with manager to discuss tradeoffs as PM on Generative Auction.</p>
       <ul id="open-questions"></ul>
+    </section>
+    <section style="text-align:center; background:linear-gradient(135deg, #e7f3ff, #f0f8ff);">
+      <h3>🎓 Congratulations Jo!</h3>
+      <p>You've completed the 5-day Auction Fluency program. You now have foundational mental models for second-price auctions, VCG, pacing, full funnel optimization, gradient auction, OVAR, and GR2 — exactly the vocabulary needed to be effective PM on Generative Auction & OVAR team.</p>
+      <p style="font-size:16px;color:#606770;">Next recommended actions: review missed quiz questions above via Retry button, discuss open questions with your EM or tech lead, and revisit Day 4-5 content weekly during first month to strengthen retention through spaced repetition.</p>
+      <button class="btn" onclick="showHome()">Back to Home → Review Any Day</button>
     </section>
   </div>
 </div>

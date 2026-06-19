@@ -1,176 +1,356 @@
-/* Auction Fluency – Portal optimized styles v1.2
+/* Auction Fluency – Portal optimized styles v2.0
  * Design system for Meta Portal 10" and 15" landscape touchscreen devices.
  * Key constraints enforced here, not just documented:
  * - Base font 20px for 2-foot readability (Portal typical viewing distance)
  * - Minimum touch target 56px height/width per Android accessibility and Portal spec
  * - Landscape grid layout 2-column for home cards to utilize wide screen efficiently
- * - Card-based UI inspired by Duolingo / Brilliant for self-paced learning feel
- * - Color tokens: Meta blue #0064E0 primary, white cards, light gray #f0f2f5 background,
- *   green #00a400 for correct answers, orange #e87400 for incorrect, blue #e7f3ff informational
- *   notes (changed from yellow in v1.2 based on user feedback that yellow looked like mistake).
- * - No hover-dependent interactions — Portal is touch-only, no mouse hover state.
- * - Smooth CSS transitions 0.2s for view changes, no heavy animations to keep WebView performant on Portal hardware.
+ * - Card-based UI inspired by Duolingo / Brilliant for self-paced learning feel with Duolingo-style progress visualization
+ * - Color tokens: Meta blue #0064E0 primary accent, white cards, light gray #f0f2f5 background,
+ *   green #00a400 for correct answers with checkmark icon for colorblind accessibility,
+ *   orange #e87400 for incorrect with X icon for colorblind accessibility,
+ *   blue #e7f3ff informational notes with blue left border (changed from yellow in v1.2 based on user feedback).
+ * - No hover-dependent interactions — Portal is touch-only, no mouse hover state; use active state scaling for touch feedback.
+ * - Smooth CSS transitions 0.2s for view changes, 0.6s for 3D flip animations, no heavy animations to keep WebView performant on Portal hardware API 28.
+ * - Accessibility: high contrast ratios, focus visible outlines, aria labels in HTML, icon + color dual encoding for colorblind users.
  */
 
 :root {
   --blue: #0064E0;
+  --blue-dark: #0050b3;
+  --blue-light: #e7f3ff;
+  --blue-very-light: #f0f8ff;
   --bg: #f0f2f5;
   --card: #ffffff;
   --text: #1c1e21;
+  --text-secondary: #606770;
   --green: #00a400;
+  --green-light: #d4edda;
+  --green-dark: #155724;
   --orange: #e87400;
+  --orange-light: #f8d7da;
+  --orange-dark: #721c24;
   --border: #dadde1;
+  --border-strong: #bcc0c4;
   --shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-strong: 0 4px 12px rgba(0,0,0,0.15);
+  --radius: 12px;
+  --radius-small: 8px;
 }
 
 * { box-sizing: border-box; margin:0; padding:0; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
-  font-size: 20px; /* Portal readable from 2 feet */
-  line-height: 1.5;
+  font-size: 20px;
+  line-height: 1.6; /* increased from 1.5 for 2-foot readability */
   overflow-x: hidden;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Offline indicator - more prominent for Portal corpnet dependency */
+/* Offline indicator - blue informational style not yellow warning */
 .offline {
   position: fixed; top: 0.5rem; right: 0.5rem;
-  background: #e7f3ff; border: 2px solid var(--blue);
-  color: #0a2a5a;
-  padding: 0.6rem 1rem; border-radius: 24px;
+  background: var(--blue-light); border: 2px solid var(--blue);
+  color: #0a2a5a; padding: 0.6rem 1rem; border-radius: 24px;
   font-size: 18px; font-weight:600; z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  max-width: 60%;
-  text-align: center;
+  box-shadow: var(--shadow-strong); max-width: 60%; text-align:center;
+  animation: slideDown 0.3s ease;
 }
+@keyframes slideDown { from { transform: translateY(-20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
 .hidden { display: none !important; }
 
-/* Progress bar */
+/* Progress container top bar with streak and icon buttons */
 #progress-container {
   background: var(--card); padding: 0.6rem 1.5rem;
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; gap: 1rem;
+  position: sticky; top:0; z-index: 100;
 }
-#progress-bar { flex:1; height:8px; background:#ddd; border-radius:4px; overflow:hidden; }
-#progress-fill { height:100%; background: var(--blue); width:0%; transition: width 0.3s ease; }
-#progress-text { font-size:16px; color:#606770; white-space:nowrap; }
+#progress-bar { flex:1; height:10px; background:#e4e6eb; border-radius:5px; overflow:hidden; }
+#progress-fill { height:100%; background: linear-gradient(90deg, var(--blue), #4a90e2); width:0%; transition: width 0.5s ease; }
+#progress-text { font-size:16px; color:var(--text-secondary); white-space:nowrap; font-weight:600; }
+#streak-text { font-size:14px; color:var(--text-secondary); white-space:nowrap; }
+.icon-btn {
+  background: #f0f2f5; border:1px solid var(--border); border-radius:50%;
+  width:48px; height:48px; min-width:48px; min-height:48px;
+  font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition: background 0.15s, transform 0.1s;
+}
+.icon-btn:active { background:#e4e6eb; transform:scale(0.95); }
+.icon-btn:focus-visible { outline:3px solid var(--blue); outline-offset:2px; }
 
-/* Views */
-.view { display:none; padding:1.5rem; max-width:1200px; margin:0 auto; min-height: calc(100vh - 60px); }
-.view.active { display:block; }
+/* Views with fade and slide animation */
+.view { display:none; padding:1.5rem; max-width:1200px; margin:0 auto; min-height: calc(100vh - 70px); }
+.view.active { display:block; animation: fadeInSlide 0.25s ease; }
+@keyframes fadeInSlide { from{opacity:0; transform:translateX(16px);} to{opacity:1; transform:translateX(0);} }
 
-/* Home */
+/* Modal overlay system for onboarding, glossary, settings, celebration */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:2000;
+  display:flex; align-items:center; justify-content:center; padding:1.5rem;
+  animation: fadeIn 0.2s ease;
+}
+.modal-overlay.hidden { display:none !important; }
+.modal-card {
+  background:var(--card); border-radius:16px; padding:1.8rem; max-width:800px; width:100%;
+  max-height:90vh; overflow-y:auto; box-shadow: var(--shadow-strong);
+  animation: scaleIn 0.25s ease;
+}
+@keyframes scaleIn { from{transform:scale(0.95); opacity:0;} to{transform:scale(1); opacity:1;} }
+.onboarding-card h2 { color:var(--blue); margin-bottom:0.4rem; }
+.onboard-subtitle { color:var(--text-secondary); font-size:18px; margin-bottom:1.2rem; }
+.onboard-steps { display:flex; flex-direction:column; gap:0.8rem; }
+.onboard-step { display:flex; gap:0.8rem; align-items:flex-start; background:#f8f9fa; padding:0.8rem; border-radius:10px; border-left:4px solid var(--blue); }
+.step-num { background:var(--blue); color:white; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; font-size:16px; }
+
+/* Glossary specific */
+.alpha-filter { display:flex; flex-wrap:wrap; gap:0.4rem; }
+.alpha-btn {
+  min-width:44px; min-height:44px; padding:0 0.6rem; border:1px solid var(--border); background:#f8f9fa;
+  border-radius:8px; font-size:18px; font-weight:600; cursor:pointer;
+}
+.alpha-btn.active, .alpha-btn:active { background:var(--blue); color:white; border-color:var(--blue); }
+.glossary-item { padding:0.8rem; border-bottom:1px solid var(--border); }
+.glossary-term { font-weight:700; color:var(--blue); font-size:20px; }
+.glossary-def { color:var(--text-secondary); font-size:18px; margin-top:0.2rem; }
+
+/* Celebration overlay */
+.celebration-card { text-align:center; background: linear-gradient(135deg, #e7f3ff, #f0f8ff); border:3px solid var(--blue); }
+.celebration-icon { font-size:64px; margin-bottom:0.6rem; animation:bounce 0.6s ease infinite alternate; }
+@keyframes bounce { from{transform:translateY(0) scale(1);} to{transform:translateY(-8px) scale(1.05);} }
+.celebration-card h2 { color:var(--blue); font-size:1.6rem; }
+
+/* Home view enhanced */
 header { text-align:center; margin-bottom:1.5rem; }
-header h1 { color: var(--blue); font-size:1.8rem; margin-bottom:0.2rem; }
-.subtitle { color:#606770; font-size:18px; }
+header h1 { color: var(--blue); font-size:2rem; margin-bottom:0.3rem; letter-spacing:-0.5px; }
+.subtitle { color:var(--text-secondary); font-size:18px; max-width:700px; margin:0 auto; }
 
 .card-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1.2rem;
 }
 .day-card {
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.2rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.4rem;
   box-shadow: var(--shadow);
   cursor: pointer;
-  min-height: 140px;
+  min-height: 170px;
   display:flex; flex-direction:column; justify-content:space-between;
-  transition: transform 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  position:relative; overflow:hidden;
 }
-.day-card:active { transform: scale(0.98); }
-.day-card.completed { border-left: 5px solid var(--green); }
-.day-card h3 { font-size:1.1rem; margin-bottom:0.3rem; }
-.day-card p { font-size:16px; color:#606770; }
-.day-card .card-footer { display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem; font-size:16px; }
-.checkmark { color: var(--green); font-weight: bold; }
+.day-card:active { transform: scale(0.97); box-shadow: var(--shadow-strong); }
+.day-card:hover { border-color: var(--blue-light); }
+.day-card.completed {
+  border-left: 6px solid var(--green);
+  background: linear-gradient(90deg, #f0fff4 0%, var(--card) 25%);
+}
+.day-card.current {
+  border: 2px solid var(--blue);
+  box-shadow: 0 0 0 3px rgba(0,100,224,0.15), var(--shadow-strong);
+  animation: pulseBorder 2s ease-in-out infinite;
+}
+@keyframes pulseBorder { 0%,100%{ box-shadow:0 0 0 3px rgba(0,100,224,0.15), var(--shadow-strong);} 50%{box-shadow:0 0 0 6px rgba(0,100,224,0.08), var(--shadow-strong);} }
+.day-card.locked { opacity:0.55; cursor:not-allowed; background:#f8f9fa; }
+.day-card h3 { font-size:1.2rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:0.5rem; }
+.day-card p { font-size:16px; color:var(--text-secondary); line-height:1.4; }
+.day-card .card-footer { display:flex; justify-content:space-between; align-items:center; margin-top:0.8rem; font-size:15px; }
+.day-card .card-meta { display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.4rem; }
+.badge {
+  background:#e4e6eb; color:var(--text-secondary); padding:0.2rem 0.6rem; border-radius:12px;
+  font-size:13px; font-weight:600; white-space:nowrap;
+}
+.badge.blue { background:var(--blue-light); color:var(--blue-dark, #004499); }
+.badge.green { background:var(--green-light); color:var(--green-dark); }
+.badge.orange { background:#fff0e6; color:#b45300; }
+.checkmark { color: var(--green); font-weight: bold; font-size:22px; }
+.lock-icon { color:var(--text-secondary); font-size:20px; }
 
-/* Buttons – min 56px touch target per Portal spec */
+/* Progress ring small visual inside card header – CSS conic gradient simulation via extra element */
+.progress-ring-small {
+  width:36px; height:36px; border-radius:50%; border:3px solid #e4e6eb;
+  display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--text-secondary); flex-shrink:0;
+}
+.progress-ring-small.filled { border-color:var(--green); background:var(--green-light); color:var(--green-dark); }
+
+/* Buttons – min 56px touch target per Portal spec, enhanced active feedback */
 .btn {
   background: var(--blue); color:white; border:none;
-  min-height:56px; min-width:56px; padding:0 1.2rem;
-  border-radius:8px; font-size:20px; font-weight:600;
-  cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+  min-height:56px; min-width:56px; padding:0 1.4rem;
+  border-radius:10px; font-size:20px; font-weight:600;
+  cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:0.4rem;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 }
-.btn:active { background:#0050b3; }
-.btn.secondary { background:#e4e6eb; color:var(--text); }
+.btn:active { background:var(--blue-dark); transform:scale(0.96); box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+.btn:focus-visible { outline:3px solid #ffbf00; outline-offset:3px; } /* high visibility focus for accessibility */
+.btn.secondary { background:#e4e6eb; color:var(--text); box-shadow:none; }
 .btn.secondary:active { background:#d8dadf; }
 .btn.back, .btn.nav { min-width:120px; }
-.btn:disabled { opacity:0.5; cursor:not-allowed; }
+.btn:disabled { opacity:0.45; cursor:not-allowed; transform:none; box-shadow:none; }
 
-/* Module header */
-.module-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+/* Module header with stepper */
+.module-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem; flex-wrap:wrap; gap:0.6rem; }
 .nav-arrows { display:flex; align-items:center; gap:0.8rem; font-weight:600; }
 
-/* Sections */
-section { background: var(--card); border:1px solid var(--border); border-radius:10px; padding:1.2rem; margin-bottom:1rem; box-shadow: var(--shadow); }
-section h2 { color: var(--blue); border-bottom:2px solid var(--blue); padding-bottom:0.3rem; margin-bottom:0.8rem; font-size:1.3rem; }
-section h3 { margin:0.8rem 0 0.4rem; font-size:1.1rem; }
-
-/* Reading links as tappable cards */
-.reading-card {
-  display:block; background:#f8f9fa; border:1px solid var(--border);
-  border-radius:8px; padding:0.8rem 1rem; margin-bottom:0.6rem;
-  text-decoration:none; color:var(--text); min-height:56px;
-  cursor:pointer;
+/* Stepper dots showing Reading → Concepts → Quiz progress */
+.stepper { display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:1.2rem; padding:0.8rem; background:var(--card); border-radius:12px; border:1px solid var(--border); }
+.step-dot { display:flex; flex-direction:column; align-items:center; cursor:pointer; padding:0 0.4rem; min-width:80px; }
+.step-dot .dot {
+  width:36px; height:36px; border-radius:50%; background:#e4e6eb; color:var(--text-secondary);
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
 }
-.reading-card:active { background:#e9ecef; }
-.reading-card .link-title { font-weight:600; color:var(--blue); }
-.reading-card .link-url { font-size:14px; color:#606770; word-break:break-all; }
+.step-dot.active .dot { background:var(--blue); color:white; transform:scale(1.1); }
+.step-dot.completed .dot { background:var(--green); color:white; }
+.step-dot .step-label { font-size:13px; margin-top:0.3rem; color:var(--text-secondary); font-weight:500; text-align:center; }
+.step-dot.active .step-label { color:var(--blue); font-weight:700; }
+.step-line { flex:1; height:3px; background:#e4e6eb; margin:0 -4px; position:relative; top:-12px; }
+.step-line.filled { background:var(--green); }
 
-/* Concepts list */
-#concepts-list { padding-left:1.5rem; }
-#concepts-list li { margin-bottom:0.5rem; }
+/* Sections */
+section { background: var(--card); border:1px solid var(--border); border-radius:12px; padding:1.4rem; margin-bottom:1.2rem; box-shadow: var(--shadow); }
+section h2 { color: var(--blue); border-bottom:2px solid var(--blue); padding-bottom:0.4rem; margin-bottom:1rem; font-size:1.35rem; display:flex; align-items:center; justify-content:space-between; }
+section h3 { margin:0.8rem 0 0.5rem; font-size:1.15rem; }
+.section-badge { background:var(--blue-light); color:var(--blue); padding:0.15rem 0.5rem; border-radius:10px; font-size:13px; font-weight:600; margin-left:0.5rem; vertical-align:middle; }
+.section-status { font-size:14px; color:var(--text-secondary); font-weight:500; }
 
-/* Quiz */
-.quiz-q { margin-bottom:1.2rem; }
-.quiz-q h4 { margin-bottom:0.5rem; }
+/* Reading links as tappable cards with visited state */
+.reading-card {
+  display:block; background:#f8f9fa; border:2px solid var(--border);
+  border-radius:10px; padding:1rem 1.2rem; margin-bottom:0.7rem;
+  text-decoration:none; color:var(--text); min-height:64px;
+  cursor:pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  position:relative;
+}
+.reading-card:active { background:#e9ecef; transform:scale(0.98); }
+.reading-card:hover { border-color:var(--blue-light); }
+.reading-card.visited { border-left:5px solid var(--green); background:#f0fff4; }
+.reading-card.visited::after { content:"✓ visited"; position:absolute; top:0.6rem; right:0.8rem; font-size:12px; color:var(--green); font-weight:700; }
+.reading-card .link-title { font-weight:700; color:var(--blue); font-size:19px; display:flex; align-items:center; gap:0.4rem; }
+.reading-card .link-url { font-size:14px; color:var(--text-secondary); word-break:break-all; margin-top:0.2rem; }
+
+/* Concepts list enhanced */
+#concepts-list { padding-left:0; list-style:none; }
+#concepts-list li {
+  margin-bottom:0.7rem; padding:0.8rem 1rem 0.8rem 2.8rem; background:#f8f9fa; border-radius:8px;
+  position:relative; border-left:3px solid var(--blue-light); line-height:1.5;
+}
+#concepts-list li::before {
+  content:"💡"; position:absolute; left:0.8rem; top:0.75rem; font-size:18px;
+}
+
+/* Quiz enhanced */
+.quiz-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding:0.6rem 1rem; background:#f8f9fa; border-radius:8px; }
+.quiz-counter { font-weight:700; color:var(--blue); }
+.quiz-dots { display:flex; gap:0.4rem; justify-content:center; margin-bottom:1.2rem; flex-wrap:wrap; }
+.quiz-dot { width:12px; height:12px; border-radius:50%; background:#e4e6eb; transition: background 0.2s, transform 0.2s; }
+.quiz-dot.active { background:var(--blue); transform:scale(1.3); }
+.quiz-dot.correct { background:var(--green); }
+.quiz-dot.incorrect { background:var(--orange); }
+
+.quiz-q { margin-bottom:1.4rem; padding:1rem; background:#fcfcfc; border-radius:10px; border:1px solid var(--border); }
+.quiz-q h4 { margin-bottom:0.7rem; font-size:20px; line-height:1.4; }
 .quiz-option {
   display:block; width:100%; text-align:left;
   background:#f8f9fa; border:2px solid var(--border);
-  border-radius:8px; padding:0.8rem 1rem; margin-bottom:0.5rem;
-  min-height:56px; font-size:20px; cursor:pointer;
+  border-radius:10px; padding:1rem 1.2rem; margin-bottom:0.6rem;
+  min-height:60px; font-size:20px; cursor:pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  position:relative; padding-left:3rem;
 }
-.quiz-option:active { background:#e9ecef; }
-.quiz-option.correct { background:#d4edda; border-color:var(--green); color:#155724; }
-.quiz-option.incorrect { background:#f8d7da; border-color:var(--orange); color:#721c24; }
+.quiz-option::before {
+  content:""; position:absolute; left:1rem; top:50%; transform:translateY(-50%);
+  width:20px; height:20px; border:2px solid var(--border-strong); border-radius:50%; background:white;
+}
+.quiz-option:active { background:#e9ecef; transform:scale(0.99); }
+.quiz-option.correct { background:var(--green-light); border-color:var(--green); color:var(--green-dark); font-weight:600; }
+.quiz-option.correct::before { background:var(--green); border-color:var(--green); content:"✓"; color:white; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; }
+.quiz-option.incorrect { background:var(--orange-light); border-color:var(--orange); color:var(--orange-dark); font-weight:600; }
+.quiz-option.incorrect::before { background:var(--orange); border-color:var(--orange); content:"✕"; color:white; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; }
 .quiz-option:disabled { cursor:default; }
-.explanation { background:#e7f3ff; border-left:4px solid var(--blue); padding:0.8rem 1rem; border-radius:6px; margin-top:0.6rem; font-size:18px; color:#0a2a5a; }
+.explanation { background:var(--blue-light); border-left:4px solid var(--blue); padding:0.8rem 1rem; border-radius:6px; margin-top:0.6rem; font-size:18px; color:#0a2a5a; line-height:1.5; }
+.explanation strong { color:var(--blue); }
 
-/* Flashcard */
+/* Flashcard with 3D flip animation */
 .flashcard {
-  background:#f8f9fa; border:2px solid var(--border); border-radius:10px;
-  padding:1.2rem; min-height:120px; cursor:pointer; text-align:center;
+  background:#f8f9fa; border:2px solid var(--border); border-radius:12px;
+  padding:1.4rem; min-height:140px; cursor:pointer; text-align:center;
   display:flex; align-items:center; justify-content:center;
-  font-size:20px; margin-bottom:0.8rem;
+  font-size:20px; margin-bottom:0.8rem; position:relative;
+  perspective: 1000px; transition: border-color 0.2s;
 }
-.flashcard .back { display:none; }
-.flashcard.flipped { background:#e7f3ff; border-color:var(--blue); }
-.flashcard.flipped .front { display:none; }
-.flashcard.flipped .back { display:block; }
+.flashcard-inner {
+  position:relative; width:100%; transition: transform 0.6s; transform-style: preserve-3d;
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard .front, .flashcard .back {
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  display:flex; align-items:center; justify-content:center; min-height:100px; width:100%;
+}
+.flashcard .back { transform: rotateY(180deg); position:absolute; top:0; left:0; }
+.flashcard.flipped { background:var(--blue-light); border-color:var(--blue); }
+.flashcard:active { transform:scale(0.98); }
+
+/* Confidence buttons under flashcard */
+.confidence-row { display:flex; gap:0.6rem; margin-top:0.4rem; margin-bottom:1.2rem; }
+.conf-btn { flex:1; min-height:48px; border-radius:8px; border:2px solid var(--border); background:#f8f9fa; font-size:16px; font-weight:600; cursor:pointer; padding:0.4rem; }
+.conf-btn:active, .conf-btn.selected { border-color:var(--blue); background:var(--blue-light); color:var(--blue); }
+.conf-btn[data-level="1"].selected { border-color:var(--green); background:var(--green-light); color:var(--green-dark); }
+.conf-btn[data-level="3"].selected { border-color:var(--orange); background:var(--orange-light); color:var(--orange-dark); }
 
 /* True False */
 .tf-buttons { display:flex; gap:1rem; }
 .tf-buttons .btn { flex:1; }
 
-/* Ordering exercise */
+/* Ordering exercise enhanced */
 .ordering-pool, .ordering-selected {
-  min-height:70px; border:2px dashed var(--border); border-radius:8px;
-  padding:0.5rem; margin-bottom:0.8rem; display:flex; flex-wrap:wrap; gap:0.5rem;
+  min-height:80px; border:2px dashed var(--border); border-radius:10px;
+  padding:0.6rem; margin-bottom:0.8rem; display:flex; flex-wrap:wrap; gap:0.6rem;
+  background:#fafbfc; transition: border-color 0.2s, background 0.2s;
 }
+.ordering-pool.drag-over, .ordering-selected.drag-over { border-color:var(--blue); background:var(--blue-light); }
 .order-item {
-  background:var(--blue); color:white; padding:0.6rem 1rem;
-  border-radius:6px; cursor:pointer; min-height:56px; display:flex; align-items:center;
-  font-size:18px;
+  background:var(--blue); color:white; padding:0.7rem 1.1rem;
+  border-radius:8px; cursor:pointer; min-height:56px; display:flex; align-items:center;
+  font-size:18px; font-weight:600; box-shadow:0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s; user-select:none;
 }
-.order-item:active { opacity:0.8; }
+.order-item:active { opacity:0.85; transform:scale(0.96); box-shadow:0 1px 2px rgba(0,0,0,0.08); }
+.order-item.hint-highlight { animation: hintPulse 1.2s ease 2; border:3px solid #ffcc00; }
+@keyframes hintPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(255,204,0,0.7);} 50%{box-shadow:0 0 0 8px rgba(255,204,0,0);} }
 
-/* Smooth transitions */
-.view { animation: fadeIn 0.2s ease; }
-@keyframes fadeIn { from{opacity:0; transform:translateX(10px);} to{opacity:1; transform:translateX(0);} }
+/* Review summary screen */
+.review-summary { background:var(--card); border:2px solid var(--border); border-radius:12px; padding:1.2rem; margin-top:1rem; }
+.review-item { padding:0.8rem; border-bottom:1px solid var(--border); display:flex; gap:0.8rem; align-items:flex-start; }
+.review-item:last-child { border-bottom:none; }
+.review-status { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; flex-shrink:0; font-size:14px; }
+.review-status.correct { background:var(--green-light); color:var(--green-dark); }
+.review-status.incorrect { background:var(--orange-light); color:var(--orange-dark); }
+.review-status.skipped { background:#e4e6eb; color:var(--text-secondary); }
+.review-q { flex:1; }
+.review-q-title { font-weight:600; margin-bottom:0.2rem; }
+.review-q-detail { font-size:15px; color:var(--text-secondary); }
+
+/* Smooth transitions and animations */
+.view { animation: fadeInSlide 0.25s ease; }
+@keyframes fadeInSlide { from{opacity:0; transform:translateX(16px);} to{opacity:1; transform:translateX(0);} }
+@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+
+/* Celebration confetti effect simplified with CSS */
+.confetti { position:absolute; width:10px; height:10px; opacity:0.8; animation: confettiFall 1.2s ease-out forwards; }
+@keyframes confettiFall { 0%{ transform: translateY(-20px) rotate(0deg); opacity:1;} 100%{ transform: translateY(120px) rotate(360deg); opacity:0;} }
+
+/* Responsive tweaks for Portal 10 inch vs 15 inch — both landscape but different dpi */
+@media (min-width: 1400px) {
+  body { font-size:22px; }
+  .card-grid { gap:1.4rem; }
+  .day-card { min-height:190px; padding:1.6rem; }
+}
