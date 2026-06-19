@@ -42,14 +42,25 @@ auction-fluency/
 
 Prerequisites checked by build.sh:
 - Android SDK at `$ANDROID_HOME` or `~/Library/Android/sdk` or `~/Android/Sdk`
-- Build-tools with aapt d8 zipalign apksigner (you have 34.0.0)
+- Build-tools with aapt d8 zipalign apksigner (you have 37.0.0)
 - Platform android.jar – picks highest installed (34 or 36) since 28 not installed locally; manifest still declares min/target 28 for Portal compatibility
-- JDK 17 or 11 – **not installed yet on this machine**. Install first:
+- JDK 17 or 11 – **installed via manual tarball to ~/jdk to avoid Homebrew permission issues on this machine**. If you prefer brew:
 
 ```bash
+# fix brew permissions first if needed:
+sudo chown -R $(whoami) /opt/homebrew
 brew install openjdk@17
 echo 'export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"' >> ~/.zshrc
 export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+```
+
+Manual alternative already used successfully on this machine:
+```bash
+mkdir -p ~/jdk && cd ~/jdk
+curl -L -o openjdk17.tar.gz "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.11%2B9/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.11_9.tar.gz"
+tar -xzf openjdk17.tar.gz
+export JAVA_HOME="$HOME/jdk/jdk-17.0.11+9/Contents/Home"
+export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
 Then build:
@@ -57,10 +68,12 @@ Then build:
 ```bash
 cd "/Users/j0sephine/Documents/AI outputs/auction-fluency"
 chmod +x build.sh
+export JAVA_HOME="$HOME/jdk/jdk-17.0.11+9/Contents/Home"
+export PATH="$JAVA_HOME/bin:$PATH"
 ./build.sh
 ```
 
-Expect `build/AuctionFluency.apk`. If JDK missing, script exits with clear install hint.
+Expect `build/AuctionFluency.apk` ~25KB. Verified built successfully on 2026-06-18 with SDK 37.0.0, platform android-34, JDK Temurin 17.0.11. If JDK missing, script exits with clear install hint.
 
 ## Test in browser without Portal
 

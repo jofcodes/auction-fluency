@@ -107,7 +107,9 @@ echo "[2/6] javac compile..."
 
 # 8. d8 dex
 echo "[3/6] d8 dex..."
-"$D8" --lib "$PLATFORM_JAR" --output "$BUILD_DIR" "$BUILD_DIR/classes"
+# Find all .class files – d8 needs explicit file list not just directory on some versions
+CLASS_FILES=$(find "$BUILD_DIR/classes" -name "*.class")
+"$D8" --lib "$PLATFORM_JAR" --output "$BUILD_DIR" $CLASS_FILES
 
 # 9. add classes.dex to apk
 echo "[4/6] aapt add dex..."

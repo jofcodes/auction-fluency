@@ -12,8 +12,7 @@
     <!-- Gavel head -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M28,38 L80,38 L80,50 L28,50 Z"
-        android:strokeWidth="0"/>
+        android:pathData="M28,38 L80,38 L80,50 L28,50 Z" />
     <!-- Gavel handle -->
     <path
         android:fillColor="#FFFFFF"
@@ -24,13 +23,13 @@
         android:pathData="M32,78 L76,78 L76,86 L32,86 Z"/>
     <!-- Fluency swoosh -->
     <path
-        android:fillColor="none"
+        android:fillColor="#00000000"
         android:strokeColor="#FFFFFF"
         android:strokeWidth="3"
         android:strokeLineCap="round"
         android:pathData="M20,24 Q54,16 88,24" />
     <path
-        android:fillColor="none"
+        android:fillColor="#00000000"
         android:strokeColor="#FFFFFF"
         android:strokeWidth="3"
         android:strokeLineCap="round"
