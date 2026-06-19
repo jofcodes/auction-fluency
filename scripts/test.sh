@@ -1,5 +1,13 @@
 #!/bin/bash
 set -e
+#
+# Auction Fluency – test suite for local validation without Portal hardware or Android build tools
+# Validates JSON syntax, required project files existence, AndroidManifest correctness.
+# Run this before every commit or pull request to catch common mistakes early.
+# Usage: ./scripts/test.sh   (from project root or scripts directory)
+# Expected output ends with "=== ALL TESTS PASS ===". Exit code 0 means pass, non-zero means fail.
+# No Android SDK, no JDK, no ADB required — pure Python and shell checks, runs in under 2 seconds.
+#
 cd "$(dirname "$0")/.."
 echo "=== Auction Fluency test suite ==="
 echo "[1/3] Validate JSON syntax..."

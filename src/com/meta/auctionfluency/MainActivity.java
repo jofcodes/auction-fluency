@@ -11,6 +11,25 @@ import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 
+/**
+ * Auction Fluency – Portal Learning App Main Activity
+ *
+ * Thin Android WebView wrapper hosting self-contained HTML/CSS/JS educational app
+ * from assets/www/. No network required for core quiz functionality; reading links
+ * open externally when corpnet available.
+ *
+ * Portal-specific behavior implemented here (not in web layer):
+ * - Fullscreen immersive sticky mode hides status and navigation bars
+ * - FLAG_KEEP_SCREEN_ON prevents screen timeout during learning sessions
+ * - Landscape orientation locked via AndroidManifest (sensorLandscape for both landscape rotations)
+ * - DOM storage enabled for localStorage progress persistence across app restarts
+ * - File access from file URLs enabled to allow WebView to load bundled assets
+ * - JavaScript console bridged to logcat with tag "AuctionFluency" for remote debugging via adb logcat
+ * - WebView debugging enabled for Chrome DevTools remote inspector at chrome://inspect
+ *
+ * Build pattern matches My Sous Chef app: shell script build with aapt javac d8 apksigner,
+ * no Gradle overhead, suitable for rapid iteration on Portal via ADB sideload.
+ */
 public class MainActivity extends Activity {
 
     private static final String TAG = "AuctionFluency";
@@ -29,13 +48,12 @@ public class MainActivity extends Activity {
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true); // localStorage for progress tracking
-        settings.setAllowFileAccess(true);
-        settings.setAllowFileAccessFromFileURLs(true);
-        settings.setAllowUniversalAccessFromFileURLs(true);
+        settings.setDomStorageEnabled(true); // localStorage for progress tracking across sessions
         settings.setDatabaseEnabled(true);
-        settings.setCacheMode(WebSettings.LOAD_NO_CACHE); // always load fresh assets from APK, avoid stale cache after updates
-        settings.setDomStorageEnabled(true);
+        settings.setAllowFileAccess(true);
+        settings.setAllowFileAccessFromFileURLs(true);  // required for file:///android_asset/... XHR/fetch in WebView
+        settings.setAllowUniversalAccessFromFileURLs(true); // required for file scheme CORS workaround (though we now embed JSON to avoid fetch dependency)
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE); // always load fresh assets from APK after updates, avoid stale WebView cache
 
         webView.setWebViewClient(new WebViewClient());
 

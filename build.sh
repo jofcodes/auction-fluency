@@ -2,8 +2,34 @@
 set -e
 
 # Auction Fluency – shell build script (no Gradle)
-# Pattern matches My Sous Chef app Jo already deploys to Portal
-# Resolves SDK, build-tools, platform jar, JDK automatically
+# Builds Android APK for Meta Portal device using Android SDK build tools directly.
+# Pattern matches My Sous Chef app and Beehive Monitor Portal app deployment workflow familiar to Jo,
+# but simplified to shell commands without Gradle wrapper overhead per artifact specification.
+#
+# What this script does step by step:
+#  1. Locate Android SDK at ANDROID_HOME or ~/Library/Android/sdk or ~/Android/Sdk
+#  2. Find latest build-tools version automatically (aapt, d8, zipalign, apksigner)
+#  3. Find highest installed platform android.jar (prefers 34, falls back to 36,35...28) for compilation;
+#     AndroidManifest declares minSdk 28 targetSdk 28 for Portal compatibility, compiling against newer platform is safe.
+#  4. Locate JDK 17 or 11 via /usr/libexec/java_home, JAVA_HOME env, or ~/jdk manual tarball fallback
+#     (manual tarball documented because Homebrew /opt/homebrew permissions often require sudo fix on fresh Macs)
+#  5. Clean build directory
+#  6. aapt package: compile resources, assets, manifest into unsigned APK skeleton
+#  7. javac compile: compile MainActivity.java against android.jar bootclasspath to .class files
+#  8. d8 dex: convert .class files to classes.dex Dalvik bytecode; explicit file list required not directory on newer d8 versions
+#  9. aapt add: insert classes.dex into APK at root path (must cd into build dir so internal path is correct, not build/classes.dex)
+# 10. zipalign: align uncompressed data on 4-byte boundaries for runtime efficiency
+# 11. apksigner: sign APK with debug keystore at ~/.android/debug.keystore (auto-generated via keytool if missing)
+# 12. Output final APK to build/AuctionFluency.apk ready for adb install
+#
+# Usage:
+#   chmod +x build.sh
+#   export JAVA_HOME="$HOME/jdk/jdk-17.0.11+9/Contents/Home"   # or your JDK path
+#   export PATH="$JAVA_HOME/bin:$PATH"
+#   ./build.sh
+# Expected output ends with "=== SUCCESS ===" and APK size around 33KB.
+#
+# Troubleshooting see README.md Troubleshooting section or run ./scripts/test.sh first to validate project structure.
 
 APP_NAME="AuctionFluency"
 PACKAGE="com.meta.auctionfluency"

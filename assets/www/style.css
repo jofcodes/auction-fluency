@@ -1,3 +1,17 @@
+/* Auction Fluency – Portal optimized styles v1.2
+ * Design system for Meta Portal 10" and 15" landscape touchscreen devices.
+ * Key constraints enforced here, not just documented:
+ * - Base font 20px for 2-foot readability (Portal typical viewing distance)
+ * - Minimum touch target 56px height/width per Android accessibility and Portal spec
+ * - Landscape grid layout 2-column for home cards to utilize wide screen efficiently
+ * - Card-based UI inspired by Duolingo / Brilliant for self-paced learning feel
+ * - Color tokens: Meta blue #0064E0 primary, white cards, light gray #f0f2f5 background,
+ *   green #00a400 for correct answers, orange #e87400 for incorrect, blue #e7f3ff informational
+ *   notes (changed from yellow in v1.2 based on user feedback that yellow looked like mistake).
+ * - No hover-dependent interactions — Portal is touch-only, no mouse hover state.
+ * - Smooth CSS transitions 0.2s for view changes, no heavy animations to keep WebView performant on Portal hardware.
+ */
+
 :root {
   --blue: #0064E0;
   --bg: #f0f2f5;
